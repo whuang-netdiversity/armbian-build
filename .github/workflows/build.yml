@@ -11,9 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: armbian/build@main
+      - name: Cache Armbian Artifacts
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: ${{ runner.os }}-armbian-uefi-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-armbian-uefi-
+
+      # This step creates the file on the temporary runner disk
+      - name: Run Armbian Builder
+        uses: armbian/build@main
         with:
           armbian_token: ${{ secrets.GITHUB_TOKEN }}
           armbian_board: "uefi-arm64"
           armbian_release: "trixie"
           armbian_target: "build"
+          armbian_extra_args: 'REPOSITORY_INSTALL="u-boot,kernel,bsp,armbian-firmware" CLEAN_LEVEL="" BUILD_MINIMAL="yes" BUILD_DESKTOP="no"'
+
+      # THIS STEP EXTRACTS IT BEFORE THE RUNNER DIES
+      - name: Upload Image to Actions Summary Tab
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-armbian-image
+          path: ./*_output/images/*  # Armbian maps the output to a matching local output directory
+          if-no-files-found: error
+          retention-days: 5
