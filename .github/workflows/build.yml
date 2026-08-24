@@ -7,12 +7,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       - uses: armbian/build@main
         with:
+          armbian_token: ${{ secrets.GITHUB_TOKEN }}
           armbian_board: "uefi-arm64"
           armbian_release: "trixie"
           armbian_target: "build"
