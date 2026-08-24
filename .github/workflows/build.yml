@@ -34,6 +34,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiled-armbian-image
-          path: ./*_output/images/*  # Armbian maps the output to a matching local output directory
+          path: |
+            build/output/images/*
+            **/output/images/*
           if-no-files-found: error
           retention-days: 5
