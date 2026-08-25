@@ -14,28 +14,25 @@ jobs:
       - name: Cache Armbian Artifacts
         uses: actions/cache@v4
         with:
-          path: .cache
+          path: build/.cache
           key: ${{ runner.os }}-armbian-uefi-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-armbian-uefi-
 
-      # This step creates the file on the temporary runner disk
-      - name: Run Armbian Builder
+      - name: Build Image
         uses: armbian/build@main
         with:
           armbian_token: ${{ secrets.GITHUB_TOKEN }}
           armbian_board: "uefi-arm64"
-          armbian_release: "trixie"
-          armbian_target: "build"
-          armbian_extra_args: 'REPOSITORY_INSTALL="u-boot,kernel,bsp,armbian-firmware" CLEAN_LEVEL="" BUILD_MINIMAL="yes" BUILD_DESKTOP="no"'
+          # CHANGE THIS: Switching to a stable release guarantees pre-compiled repo packages exist
+          armbian_release: "trixie" 
+          armbian_target: "current"
+          armbian_extra_args: 'REPOSITORY_INSTALL="u-boot,kernel,bsp,armbian-firmware" CLEAN_LEVEL="" ARTIFACT_IGNORE_CACHE=no USE_PREBUILT_KERNEL=yes BUILD_MINIMAL=yes KERNEL_CONFIGURE=no'
 
-      # THIS STEP EXTRACTS IT BEFORE THE RUNNER DIES
-      - name: Upload Image to Actions Summary Tab
+      - name: Upload Image Artifact to GitHub Actions
         uses: actions/upload-artifact@v4
         with:
           name: compiled-armbian-image
-          path: |
-            build/output/images/*
-            **/output/images/*
+          path: [ "build/output/images/*", "**/output/images/*" ]
           if-no-files-found: error
           retention-days: 5
