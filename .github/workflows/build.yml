@@ -34,6 +34,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiled-armbian-image
-          path: [ "build/output/images/*", "**/output/images/*" ]
+          path: |
+            build/output/images/*
+            **/output/images/*
           if-no-files-found: error
           retention-days: 5
